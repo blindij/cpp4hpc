@@ -1,3 +1,8 @@
+# vim swap files
+.*.sw?
+# The build subdirectory
+cmake-build-debug/
+
 # Default ignored files
 /shelf/
 /workspace.xml

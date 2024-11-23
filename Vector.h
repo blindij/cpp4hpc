@@ -10,6 +10,7 @@
 namespace cpp4hpc {
     class Vector {
     public:
+        Vector() : num_rows_(1), storage_(num_rows_){}
         Vector(size_t M) : num_rows_(M), storage_(num_rows_) {}
               double& operator()(size_t i) { return storage_[i]; }
         const double& operator()(size_t i) const { return storage_[i]; }

@@ -3,7 +3,10 @@
 #include <cstring>
 #include <iostream>
 #include <random>
+#include <boost/program_options.hpp>
 #include "Vector.h"
+#include "Timer.hpp"
+#include "Matrix.hpp"
 
 // using namespace cpp4hpc;
 using namespace std::chrono;
@@ -30,28 +33,46 @@ cpp4hpc::Vector& operator+=(cpp4hpc::Vector& y, const cpp4hpc::Vector& x){
     }
     return y;
 }
+
+Matrix operator*(const Matrix& A, const Matrix& B){
+    Matrix C(A.num_rows(), B.num_cols());
+    zeroize(C);
+    for (size_t i = 0; i < A.num_rows(); i++){
+        for (size_t j = 0; j < B.num_cols(); j++){
+            for (size_t k = 0; k < A.num_cols(); k++){
+                C(i,j) = A(i, k) * B(k, j);
+            }
+        }
+    }
+    return C;
+}
+
+namespace po = boost::program_options;
+
 int main(int argc, char* argv[]) {
     int iter = 10;
     size_t size = 1024 * 1024*128;
     double const a = 3.14159;
 
-    // Read command line arguments
-    for (int i = 0; i < argc; i++){
-        if ( ( strcmp( argv[i], "-S" ) == 0 ) || ( strcmp( argv[i], "-Size") == 0 ) ){
-            size = atoi( argv[++i]);
-            std::cout << "Vector size is: " << static_cast<float>(size * 8/(1024*1024*1024)) << " Gigabytes." << std::endl;
-        }
-        else if ( ( strcmp( argv[i], "-I" ) == 0 ) || (strcmp( argv[i], "-Iterations") == 0) ){
-            iter = atoi( argv[++i]);
-            std::cout << "The number of iterations is: " << iter << std::endl;
-        }
-        else if ( (strcmp( argv[i], "-h" ) == 0 ) ||  ( strcmp( argv[i], "-help" ) == 0 ) ){
-            std::cout << "  -Size (-S) <int>:        number of elements in the vector." << std::endl;
-            std::cout << "  -Iterations (-I) <int>:  number of iterations." << std::endl;
-            std::cout << "  -help (-h):              print this message." << std::endl;
-            exit( 1 );
-        }
+    // Define and parse the program options
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help,h", "produce help message")
+            ("Size,S", po::value<size_t>(&size)->default_value(size), "number of elements in the vector")
+            ("Iterations,I", po::value<int>(&iter)->default_value(iter), "number of iterations");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << "\n";
+        return 1;
     }
+
+    std::cout << "Vector size is: " << static_cast<float>(size * 8 / (1024 * 1024 * 1024)) << " Gigabytes." << std::endl;
+    std::cout << "The number of iterations is: " << iter << std::endl;
+
 
     cpp4hpc::Vector x(size), y(size);
     // Generate Random values

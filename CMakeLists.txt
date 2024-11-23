@@ -14,14 +14,28 @@ if (_march_native_works)
 elseif(_xhost_works)
     message(STATUS "Using processor's vector instructions (-xHost compiler flag set)")
     set(_CXX_FLAGS "-xHost")
+elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    message(STATUS "Using Apple M1 vector instructions (-mcpu=apple-m1 compiler flag set)")
+    set(_CXX_FLAGS "-O3")
+    # set(_CXX_FLAGS  "${_CXX_FLAGS} -march=armv8.4-a")
 else ()
     message(STATUS "No suitable compiler flag found for vectorization. We are setting -O3")
     set(_CXX_FLAGS "-O3")
-endif()
+    endif()
 
-add_executable(hw_unoptimized main.cpp)
-add_executable(hw main.cpp)
-target_compile_options(hw
-  PRIVATE
-  ${_CXX_FLAGS}
-)
+find_package(Boost REQUIRED COMPONENTS program_options)
+
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    add_executable(hw main.cpp)
+    target_compile_options(hw
+      PRIVATE
+      ${_CXX_FLAGS}
+    )
+    target_link_libraries(hw
+      PRIVATE
+      ${Boost_LIBRARIES}
+    )
+else ()
+    message(FATAL_ERROR "Boost not found")
+endif()
