@@ -34,19 +34,6 @@ cpp4hpc::Vector& operator+=(cpp4hpc::Vector& y, const cpp4hpc::Vector& x){
     return y;
 }
 
-Matrix operator*(const Matrix& A, const Matrix& B){
-    Matrix C(A.num_rows(), B.num_cols());
-    zeroize(C);
-    for (size_t i = 0; i < A.num_rows(); i++){
-        for (size_t j = 0; j < B.num_cols(); j++){
-            for (size_t k = 0; k < A.num_cols(); k++){
-                C(i,j) = A(i, k) * B(k, j);
-            }
-        }
-    }
-    return C;
-}
-
 namespace po = boost::program_options;
 
 int main(int argc, char* argv[]) {
