@@ -36,6 +36,11 @@ if(Boost_FOUND)
       PRIVATE
       ${Boost_LIBRARIES}
     )
+    add_executable(bench bench.cpp)
+    target_compile_options(bench
+       PRIVATE
+       ${_CXX_FLAGS}
+    )
 else ()
     message(FATAL_ERROR "Boost not found")
 endif()
